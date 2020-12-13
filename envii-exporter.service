@@ -1,0 +1,13 @@
+[Unit]
+Description=envii-exporter
+
+[Service]
+Type=simple
+ExecStart=/home/pi/work/envii-exporter/envii-exporter
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
