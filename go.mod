@@ -1,4 +1,4 @@
-module github.com/auifzysr/envii-exporter
+module github.com/auifzysr/envii_exporter
 
 go 1.15
 

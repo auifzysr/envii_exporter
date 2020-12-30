@@ -1,9 +1,9 @@
 [Unit]
-Description=envii-exporter
+Description=envii_exporter
 
 [Service]
 Type=simple
-ExecStart=/home/pi/work/envii-exporter/envii-exporter
+ExecStart=/home/pi/work/envii_exporter/envii_exporter
 ExecReload=/bin/kill -s HUP $MAINPID
 TimeoutSec=0
 RestartSec=2
