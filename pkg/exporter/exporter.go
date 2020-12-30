@@ -3,7 +3,6 @@ package exporter
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -133,10 +132,3 @@ func (e *Exporter) parseStats(ch chan<- prometheus.Metric, resp *http.Response) 
 
 	return nil
 }
-
-// func main() {
-// 	e := EnviiCollector{}
-// 	prometheus.MustRegister(e)
-// 	http.Handle("/metrics", promhttp.Handler())
-// 	log.Fatal(http.ListenAndServe("0.0.0.0:8001", nil))
-// }
