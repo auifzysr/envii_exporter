@@ -72,6 +72,16 @@ services:
       ENVII_TIMEOUT: 20
       ENVII_LISTEN_ADDRESS: 0.0.0.0:8001
 
+  m5stickc:
+    image: envii_exporter:latest
+    build: .
+    ports:
+      - 8002:8002/tcp
+    environment:
+      ENVII_POLL_ADDRESS: http://192.168.11.35:9000
+      ENVII_TIMEOUT: 20
+      ENVII_LISTEN_ADDRESS: 0.0.0.0:8002
+
 volumes:
 
   grafana-storage:
