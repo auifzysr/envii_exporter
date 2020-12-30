@@ -62,10 +62,18 @@ services:
       TS_PROM_LOG_LEVEL: info
       TS_PROM_WEB_TELEMETRY_PATH: /metrics
 
+  atom:
+    image: envii_exporter:latest
+    build: .
+    ports:
+      - 8001:8001/tcp
+    environment:
+      ENVII_POLL_ADDRESS: http://192.168.11.12:9000
+      ENVII_TIMEOUT: 20
+      ENVII_LISTEN_ADDRESS: 0.0.0.0:8001
+
 volumes:
 
   grafana-storage:
-    external: false
 
   alertmanager-storage:
-    external: false
