@@ -24,7 +24,7 @@ float c, h, p = 0.0;
 WebServer server(WEBSERVER_PORT);
 
 void handleRoot() {
-  server.send(200, "text/plain", "{'c':" + String(c) + ",'h':" + String(h) + ",'p':" + String(p) + "}");
+  server.send(200, "text/plain", "{\"c\":" + String(c) + ",\"h\":" + String(h) + ",\"p\":" + String(p) + "}");
 }
 
 void handleNotFound() {
@@ -66,10 +66,10 @@ void loop(void) {
   if (sht30.get() == 0) {
     c = sht30.cTemp;
     h = sht30.humidity;
-    p = bme.readPressure() / 100;
+    p = bme.readPressure();
   }
 
   server.handleClient();
   M5.Lcd.setCursor(0, 15, 2);
-  M5.Lcd.printf("Temperature: %.2f C\nHumidity: %.2f %%\nPressure: %.2f hPa", c, h, p);
+  M5.Lcd.printf("Temperature: %.2f C\nHumidity: %.2f %%\nPressure: %.2f Pa", c, h, p);
 }
