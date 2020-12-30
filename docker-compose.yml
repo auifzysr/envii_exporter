@@ -1,0 +1,70 @@
+version: '3.7'
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.23.0
+    ports:
+      - 9090:9090/tcp
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus.rules.yml:/etc/prometheus/prometheus.rules.yml:ro
+
+  alertmanager:
+    image: prom/alertmanager:v0.21.0
+    ports:
+      - 9093:9093/tcp
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager-storage:/alertmanager
+    depends_on:
+      - prometheus
+
+  node_exporter:
+    image: prom/node-exporter:v1.0.1
+    ports:
+      - 9100:9100/tcp
+    depends_on:
+      - prometheus
+
+  grafana:
+    image: grafana/grafana:7.3.4-ubuntu
+    ports:
+      - 3000:3000/tcp
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  timescaledb:
+    image: timescale/timescaledb:1.7.4-pg12
+    ports:
+      - 5432:5432/tcp
+    volumes:
+      - ~/timescale/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: timescale
+
+  promscale:
+    image: timescale/promscale-arml7:0.1.3
+    ports:
+      - 9201:9201/tcp
+    depends_on:
+      - timescaledb
+    environment:
+      TS_PROM_DB_HOST: timescaledb
+      TS_PROM_DB_PASSWORD: postgres
+      TS_PROM_DB_USER: postgres
+      TS_PROM_DB_SSL_MODE: allow
+      TS_PROM_LOG_LEVEL: info
+      TS_PROM_WEB_TELEMETRY_PATH: /metrics
+
+volumes:
+
+  grafana-storage:
+    external: false
+
+  alertmanager-storage:
+    external: false
