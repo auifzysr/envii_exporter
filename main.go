@@ -21,11 +21,11 @@ var (
 type EnviiCollector struct {
 }
 
-type EnviiMetric struct {
-	C float64 `json:"c"`
-	H float64 `json:"h"`
-	P float64 `json:"p"`
-}
+// type EnviiMetric struct {
+// 	C float64 `json:"c"`
+// 	H float64 `json:"h"`
+// 	P float64 `json:"p"`
+// }
 
 func (e EnviiCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- up
@@ -55,8 +55,15 @@ func (e EnviiCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- prometheus.MustNewConstMetric(up, prometheus.GaugeValue, 1)
-	ch <- prometheus.MustNewConstMetric(prometheus.NewDesc("envii_temperature", "temperature", nil, nil),
-		prometheus.GaugeValue, metric["c"].(float64))
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			"envii_temperature",
+			"temperature",
+			nil,
+			nil,
+		),
+		prometheus.GaugeValue, metric["c"].(float64),
+	)
 	ch <- prometheus.MustNewConstMetric(prometheus.NewDesc("envii_humidity", "humidity", nil, nil),
 		prometheus.GaugeValue, metric["h"].(float64))
 	ch <- prometheus.MustNewConstMetric(prometheus.NewDesc("envii_pressure", "air_pressure", nil, nil),
