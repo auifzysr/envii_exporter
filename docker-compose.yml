@@ -48,6 +48,7 @@ services:
       POSTGRES_DB: timescale
 
   promscale:
+    # not available on DockerHub, must be built
     image: timescale/promscale-arml7:0.1.3
     ports:
       - 9201:9201/tcp
