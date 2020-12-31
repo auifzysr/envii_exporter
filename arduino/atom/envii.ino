@@ -1,6 +1,11 @@
 // ref: https://github.com/m5stack/M5-ProductExampleCodes/blob/0599f9ee322385df47eb8f302d30b59bffe47b92/Unit/ENVII/Arduino/ENVII/ENVII.ino
 // ref: https://gist.github.com/ksasao/cf601184691e59297fd464af910966b4
 
+// need to install:
+// https://github.com/m5stack/M5-ProductExampleCodes/blob/0599f9ee322385df47eb8f302d30b59bffe47b92/Unit/ENVII/Arduino/ENVII/SHT3X.h
+// https://github.com/m5stack/M5-ProductExampleCodes/blob/0599f9ee322385df47eb8f302d30b59bffe47b92/Unit/ENVII/Arduino/ENVII/SHT3X.cpp
+// https://github.com/m5stack/M5-ProductExampleCodes/blob/0599f9ee322385df47eb8f302d30b59bffe47b92/Unit/ENVII/Arduino/ENVII/Adafruit_Sensor.h
+
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
