@@ -3,6 +3,7 @@ version: '3.7'
 services:
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:v2.23.0
     ports:
       - 9090:9090/tcp
@@ -11,6 +12,7 @@ services:
       - ./config/prometheus.rules.yml:/etc/prometheus/prometheus.rules.yml:ro
 
   alertmanager:
+    container_name: alertmanager
     image: prom/alertmanager:v0.21.0
     ports:
       - 9093:9093/tcp
@@ -21,6 +23,7 @@ services:
       - prometheus
 
   node_exporter:
+    container_name: node_exporter
     image: prom/node-exporter:v1.0.1
     # ports:
     #   - 9100:9100/tcp
@@ -37,6 +40,7 @@ services:
       - '/:/host:ro,rslave'
 
   grafana:
+    container_name: grafana
     image: grafana/grafana:7.3.4-ubuntu
     ports:
       - 3000:3000/tcp
@@ -51,6 +55,7 @@ services:
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
   timescaledb:
+    container_name: timescaledb
     image: timescale/timescaledb:1.7.4-pg12
     ports:
       - 5432:5432/tcp
@@ -62,6 +67,7 @@ services:
       POSTGRES_DB: timescale
 
   promscale:
+    container_name: promscale
     # not available on DockerHub, must be built
     image: timescale/promscale-arml7:0.1.3
     ports:
@@ -77,6 +83,7 @@ services:
       TS_PROM_WEB_TELEMETRY_PATH: /metrics
 
   atom1:
+    container_name: atom1
     image: envii_exporter:latest
     build: .
     ports:
@@ -87,6 +94,7 @@ services:
       ENVII_LISTEN_ADDRESS: 0.0.0.0:8001
 
   m5stickc:
+    container_name: m5stickc
     image: envii_exporter:latest
     build: .
     ports:
@@ -97,6 +105,7 @@ services:
       ENVII_LISTEN_ADDRESS: 0.0.0.0:8002
 
   atom2:
+    container_name: atom2
     image: envii_exporter:latest
     build: .
     ports:
