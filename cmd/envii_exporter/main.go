@@ -18,10 +18,10 @@ import (
 var metricsPath = "/metrics"
 
 func main() {
-	var nodeEndpoint = flag.String("nodeEndpoint", "localhost:9000", "The endpoint to which the exporter access to get metrics.")
+	var nodeEndpoint = flag.String("node_endpoint", "localhost:9000", "The endpoint to which the exporter access to get metrics.")
 	// TODO: enable timeout
 	var timeout = flag.Int("timeout", 15, "Seconds the exporter waits to get response.")
-	var listenAddress = flag.String("listenAddress", "0.0.0.0:8001", "The address on which the exporter listens for connections.")
+	var listenAddress = flag.String("listen_address", "0.0.0.0:8001", "The address on which the exporter listens for connections.")
 	// the alternative way to pass parameters with environment variables of which the name begins with "ENVII"
 	envy.Parse("ENVII")
 	flag.Parse()
@@ -35,7 +35,7 @@ func main() {
 
 	// registers Collectors
 	prometheus.MustRegister(version.NewCollector("envii_exporter"))
-	prometheus.MustRegister(exporter.New(*endpoint, time.Duration(*timeout), logger))
+	prometheus.MustRegister(exporter.New(*nodeEndpoint, time.Duration(*timeout), logger))
 
 	// registers at which to expose metrics
 	http.Handle(metricsPath, promhttp.Handler())
