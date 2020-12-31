@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 
 	var logger = promlog.New(&promlog.Config{})
-	level.Info(logger).Log("msg", "Starting memcached_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Starting envii_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	prometheus.MustRegister(version.NewCollector("envii_exporter"))
