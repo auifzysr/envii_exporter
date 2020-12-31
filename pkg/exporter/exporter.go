@@ -12,9 +12,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type EnviiCollector struct {
-}
-
 type Exporter struct {
 	address string
 	timeout time.Duration
