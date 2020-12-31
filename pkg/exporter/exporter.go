@@ -13,9 +13,9 @@ import (
 )
 
 type Exporter struct {
-	address string
-	timeout time.Duration
-	logger  log.Logger
+	nodeEndpoint string
+	timeout      time.Duration
+	logger       log.Logger
 
 	up      *prometheus.Desc
 	uptime  *prometheus.Desc
@@ -31,11 +31,12 @@ const (
 	Namespace = "envii"
 )
 
-func New(server string, timeout time.Duration, logger log.Logger) *Exporter {
+// builds an exporter object
+func New(nodeEndpoint string, timeout time.Duration, logger log.Logger) *Exporter {
 	return &Exporter{
-		address: server,
-		timeout: timeout,
-		logger:  logger,
+		nodeEndpoint: nodeEndpoint,
+		timeout:      timeout,
+		logger:       logger,
 		up: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "up"),
 			"up",
@@ -93,10 +94,12 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
+
 	up := float64(1)
 
-	resp, err := http.Get(e.address)
+	resp, err := http.Get(e.nodeEndpoint)
 	if err != nil {
+		// notifies that the exporter is down
 		ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, 0)
 		level.Error(e.logger).Log("msg", "failed to connect to endpoint", "err", err)
 		return
@@ -107,6 +110,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		up = 0
 	}
 
+	// notifies that the exporter is up
 	ch <- prometheus.MustNewConstMetric(e.up, prometheus.GaugeValue, up)
 }
 
@@ -123,6 +127,7 @@ func (e *Exporter) parseStats(ch chan<- prometheus.Metric, resp *http.Response) 
 		return errors.Wrapf(err, "failed to unmarshal response body")
 	}
 
+	// pushes metrics data respectively
 	ch <- prometheus.MustNewConstMetric(e.temperature, prometheus.GaugeValue, metric["c"].(float64))
 	ch <- prometheus.MustNewConstMetric(e.humidity, prometheus.GaugeValue, metric["h"].(float64))
 	ch <- prometheus.MustNewConstMetric(e.pressure, prometheus.GaugeValue, metric["p"].(float64))
