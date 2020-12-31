@@ -22,10 +22,19 @@ services:
 
   node_exporter:
     image: prom/node-exporter:v1.0.1
-    ports:
-      - 9100:9100/tcp
+    # ports:
+    #   - 9100:9100/tcp
     depends_on:
       - prometheus
+#    privileged: true
+    # https://github.com/prometheus/node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
 
   grafana:
     image: grafana/grafana:7.3.4-ubuntu
@@ -35,6 +44,11 @@ services:
       - grafana-storage:/var/lib/grafana
     depends_on:
       - prometheus
+    environment:
+      # not appropriate other than in private network
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_NAME: "Main Org."
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
 
   timescaledb:
     image: timescale/timescaledb:1.7.4-pg12
@@ -62,7 +76,7 @@ services:
       TS_PROM_LOG_LEVEL: info
       TS_PROM_WEB_TELEMETRY_PATH: /metrics
 
-  atom:
+  atom1:
     image: envii_exporter:latest
     build: .
     ports:
@@ -81,6 +95,16 @@ services:
       ENVII_POLL_ADDRESS: http://192.168.11.35:9000
       ENVII_TIMEOUT: 20
       ENVII_LISTEN_ADDRESS: 0.0.0.0:8002
+
+  atom2:
+    image: envii_exporter:latest
+    build: .
+    ports:
+      - 8003:8003/tcp
+    environment:
+      ENVII_POLL_ADDRESS: http://192.168.11.41:9000
+      ENVII_TIMEOUT: 20
+      ENVII_LISTEN_ADDRESS: 0.0.0.0:8003
 
 volumes:
 
