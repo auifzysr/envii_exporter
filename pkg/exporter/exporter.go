@@ -18,8 +18,6 @@ type Exporter struct {
 	logger       log.Logger
 
 	up      *prometheus.Desc
-	uptime  *prometheus.Desc
-	time    *prometheus.Desc
 	version *prometheus.Desc
 
 	temperature *prometheus.Desc
@@ -40,18 +38,6 @@ func New(nodeEndpoint string, timeout time.Duration, logger log.Logger) *Exporte
 		up: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "up"),
 			"up",
-			nil,
-			nil,
-		),
-		uptime: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "uptime"),
-			"uptime",
-			nil,
-			nil,
-		),
-		time: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "time"),
-			"time",
 			nil,
 			nil,
 		),
@@ -85,8 +71,6 @@ func New(nodeEndpoint string, timeout time.Duration, logger log.Logger) *Exporte
 
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- e.up
-	ch <- e.uptime
-	ch <- e.time
 	ch <- e.version
 	ch <- e.temperature
 	ch <- e.humidity
@@ -94,7 +78,6 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-
 	up := float64(1)
 
 	resp, err := http.Get(e.nodeEndpoint)
