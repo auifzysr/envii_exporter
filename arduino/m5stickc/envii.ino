@@ -8,13 +8,16 @@
 #include "Adafruit_Sensor.h"
 #include "SHT3X.h"
 
-const char* WIFI_SSID = "somessid";
-const char* WIFI_PASSWORD = "somepassword";
-const int I2C_SDA = 32;
-const int I2C_SCL = 33;
-const uint32_t I2C_FREQ = 100000;
-const long SERIAL_SPEED = 115200;
-const int WEBSERVER_PORT = 9000;
+#include <esp32-hal-gpio.h>
+
+#define WIFI_SSID "somessid"
+#define WIFI_PASSWORD "somepassword"
+#define I2C_SDA 32
+#define I2C_SCL 33
+#define I2C_FREQ 100000
+#define SERIAL_SPEED 115200
+#define WEBSERVER_PORT 9000
+#define TOP_BUTTON 37
 
 Adafruit_BMP280 bme;
 SHT3X sht30;
@@ -22,6 +25,27 @@ SHT3X sht30;
 float c, h, p = 0.0;
 
 WebServer server(WEBSERVER_PORT);
+
+volatile int lcdTimeCounter;
+hw_timer_t *lcdTimer = NULL;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+bool isLcdOn = false;
+
+// https://twitter.com/c_mos/status/1112633975552401408?lang=en
+void IRAM_ATTR onPressed() {
+  Serial.println("got interrupted");
+  timerAlarmEnable(lcdTimer);
+}
+
+
+// https://55life555.blog.fc2.com/blog-entry-3194.html
+void IRAM_ATTR onTimer() {
+  portENTER_CRITICAL_ISR(&timerMux);
+  lcdTimeCounter++;
+  portENTER_CRITICAL_ISR(&timerMux);
+  Serial.printf("now: %d\n", lcdTimeCounter);
+
+}
 
 void handleRoot() {
   server.send(200, "text/plain", "{\"c\":" + String(c) + ",\"h\":" + String(h) + ",\"p\":" + String(p) + "}");
@@ -32,6 +56,14 @@ void handleNotFound() {
 }
 
 void setup(void) {
+  pinMode(TOP_BUTTON, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(TOP_BUTTON), onPressed, FALLING);
+
+  lcdTimer = timerBegin(0, 240, true);
+  timerAttachInterrupt(lcdTimer, &onTimer, true);
+  timerAlarmWrite(lcdTimer, 1000000, true);
+  timerAlarmDisable(lcdTimer);
+
   // starts LCD
   M5.Lcd.setRotation(3);
   M5.Lcd.setTextColor(WHITE, BLACK);
@@ -59,9 +91,23 @@ void setup(void) {
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP server started");
+
+  M5.Axp.ScreenBreath(7);
+
+  // SetLDO2()関数はボード自体がなぜか動作しなくなる
+  // https://lang-ship.com/reference/unofficial/M5StickC/Class/AXP192/#screenbreath
 }
 
 void loop(void) {
+  // panicを起こす
+  //  if (lcdTimeCounter > 2) {
+  //    portENTER_CRITICAL_ISR(&timerMux);
+  //    lcdTimeCounter = 0;
+  //    portENTER_CRITICAL_ISR(&timerMux);
+  //    timerEnd(lcdTimer);
+  //    isLcdOn = false;
+  //  }
+
   // gets senser data
   if (sht30.get() == 0) {
     c = sht30.cTemp;
