@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"log"
 	"net"
 	"time"
 )
@@ -27,23 +28,17 @@ const (
 
 var key = 171
 
-type Config struct {
-	Hostname string
-	Port     string
-	Timeout  time.Duration
-}
-
 type client struct {
-	hostname string
-	port     string
-	timeout  time.Duration
+	addr    string
+	timeout time.Duration
 }
 
 func encrypt(s string) []byte {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, struct{ uint32 }{uint32(len(s))})
 	if err != nil {
-		fmt.Println("failed: ", err)
+		log.Println("failed: ", err)
+		return nil
 	}
 	result := []byte(buf.Bytes())
 	for _, c := range []byte(s) {
@@ -64,37 +59,45 @@ func decrypt(s []byte) string {
 	return result
 }
 
-func New(cfg *Config) *client {
+func New(address string) *client {
 	return &client{
-		hostname: cfg.Hostname,
-		port:     cfg.Port,
-		timeout:  cfg.Timeout,
+		addr:    address,
+		timeout: time.Second * time.Duration(10),
 	}
 }
 
 func (c *client) Dump() {
-	fmt.Println("hostname: ", c.hostname)
-	fmt.Println("port: ", c.port)
+	fmt.Println("address: ", c.addr)
 	fmt.Println("timeout: ", c.timeout)
 }
 
 func (c *client) Send(command string) {
-	d := net.Dialer{Timeout: time.Duration(c.timeout) * time.Second}
-	conn, err := d.Dial("tcp", fmt.Sprintf("%s:%s", c.hostname, c.port))
+	//d := net.Dialer{Timeout: c.timeout}
+	//	conn, err := d.Dial("tcp", c.addr)
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", c.addr)
+	if err != nil {
+		log.Println("failed to resolve tcp addr: ", err)
+		return
+	}
+
+	conn, err := net.DialTCP("tcp", nil, tcpAddr)
 	if err != nil {
 		fmt.Println("failed to create conn: ", err)
+		return
 	}
 	defer conn.Close()
 
 	_, err = conn.Write(encrypt(command))
 	if err != nil {
 		fmt.Println("failed to write conn: ", err)
+		return
 	}
 	result := [2048]byte{}
 	_, err = conn.Read(result[0:])
 
 	if err != nil {
 		fmt.Println("failed to read conn: ", err)
+		return
 	}
 	fmt.Println(decrypt(result[0:]))
 }

@@ -8,17 +8,15 @@ import (
 )
 
 func main() {
-	hostname := flag.String("hostname", "127.0.0.1", "hostname")
-	port := flag.String("port", "9999", "port")
-	timeout := flag.Int("timeout", 10, "timeout")
+	addr := flag.String("addr", "127.0.0.1:9999", "hostname")
 	flag.Parse()
 
-	client := smartplug.New(&smartplug.Config{
-		Hostname: *hostname,
-		Port:     *port,
-		Timeout:  time.Second * time.Duration(*timeout),
-	})
+	client := smartplug.New(*addr)
 
-	client.Dump()
-
+	client.Send(smartplug.INFO)
+	time.Sleep(time.Second * 3)
+	// BUG: causes "failed to read conn:  EOF"
+	client.Send(smartplug.INFO)
+	time.Sleep(time.Second * 3)
+	client.Send(smartplug.INFO)
 }
