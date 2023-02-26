@@ -62,6 +62,9 @@ void setup(void) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
   }
 
+  // required for Atom matrix
+  M5.dis.setWidthHeight(5, 5);
+
   // starts WiFi
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.println("");
@@ -85,9 +88,9 @@ void loop(void) {
     c = sht30.cTemp;
     h = sht30.humidity;
     p = bme.readPressure();
-    setBuff(0x00, 0x40, 0x00);
+    setBuff(0x00, 0x00, 0x00);
   } else {
-    setBuff(0x40, 0x00, 0x00);
+    setBuff(0x00, 0x20, 0x00);
   }
 
   M5.dis.displaybuff(DisBuff);
