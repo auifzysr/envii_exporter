@@ -88,11 +88,15 @@ void loop(void) {
     c = sht30.cTemp;
     h = sht30.humidity;
     p = bme.readPressure();
-    setBuff(0x00, 0x00, 0x00);
+    if (c > -100 && c < 100 && h > 0 && h < 100 && p > 90000 && p < 120000){
+      setBuff(0x00, 0x00, 0x00);
+      server.handleClient();
+    } else {
+      setBuff(0x00, 0x20, 0x00);
+    }
   } else {
-    setBuff(0x00, 0x20, 0x00);
+      setBuff(0x00, 0x20, 0x00);
   }
 
   M5.dis.displaybuff(DisBuff);
-  server.handleClient();
 }
